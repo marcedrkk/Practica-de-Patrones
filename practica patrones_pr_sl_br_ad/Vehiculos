@@ -1,0 +1,156 @@
+/*Contexto del ejercicio:
+Imagina que tienes una aplicación que maneja vehículos y su fabricación. Queremos usar esos patrones para distintas funcionalidades*/
+
+/*1. Singleton: Fábrica única de vehículos
+java
+Copiar
+Editar
+public class VehicleFactory {
+    private static VehicleFactory instance;
+
+    private VehicleFactory() {}
+
+    public static VehicleFactory getInstance() {
+        if (instance == null) {
+            instance = new VehicleFactory();
+        }
+        return instance;
+    }
+
+    public Vehicle createVehicle(String type) {
+        if ("car".equalsIgnoreCase(type)) {
+            return new Car();
+        } else if ("bike".equalsIgnoreCase(type)) {
+            return new Bike();
+        }
+        return null;
+    }
+}
+2. Prototype: Clonar vehículos
+java
+Copiar
+Editar
+public abstract class Vehicle implements Cloneable {
+    public abstract void showType();
+
+    @Override
+    public Vehicle clone() {
+        try {
+            return (Vehicle) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+    }
+}
+
+public class Car extends Vehicle {
+    @Override
+    public void showType() {
+        System.out.println("I am a Car");
+    }
+}
+
+public class Bike extends Vehicle {
+    @Override
+    public void showType() {
+        System.out.println("I am a Bike");
+    }
+}
+3. Bridge: Separar vehículo y motor
+java
+Copiar
+Editar
+// Implementador
+public interface Engine {
+    String start();
+}
+
+// Implementaciones concretas
+public class GasEngine implements Engine {
+    public String start() {
+        return "Starting gas engine";
+    }
+}
+
+public class ElectricEngine implements Engine {
+    public String start() {
+        return "Starting electric engine";
+    }
+}
+
+// Abstracción
+public abstract class VehicleWithEngine {
+    protected Engine engine;
+
+    public VehicleWithEngine(Engine engine) {
+        this.engine = engine;
+    }
+
+    public abstract void startEngine();
+}
+
+public class VehicleImpl extends VehicleWithEngine {
+    public VehicleImpl(Engine engine) {
+        super(engine);
+    }
+
+    public void startEngine() {
+        System.out.println(engine.start());
+    }
+}
+4. Adapter: Motor viejo con interfaz adaptada
+java
+Copiar
+Editar
+// Motor viejo con método diferente
+public class OldEngine {
+    public String turnOn() {
+        return "Old engine turning on";
+    }
+}
+
+// Adaptador para que OldEngine funcione como Engine
+public class OldEngineAdapter implements Engine {
+    private OldEngine oldEngine;
+
+    public OldEngineAdapter(OldEngine oldEngine) {
+        this.oldEngine = oldEngine;
+    }
+
+    public String start() {
+        return oldEngine.turnOn();
+    }
+}
+Uso completo en un main
+java
+Copiar
+Editar
+public class Main {
+    public static void main(String[] args) {
+        // Singleton
+        VehicleFactory factory1 = VehicleFactory.getInstance();
+        VehicleFactory factory2 = VehicleFactory.getInstance();
+        System.out.println(factory1 == factory2); // true, misma instancia
+
+        // Prototype
+        Vehicle car1 = factory1.createVehicle("car");
+        Vehicle car2 = car1.clone();
+        car1.showType();  // I am a Car
+        car2.showType();  // I am a Car
+
+        // Bridge
+        Engine gasEngine = new GasEngine();
+        Engine electricEngine = new ElectricEngine();
+        VehicleWithEngine vehicleGas = new VehicleImpl(gasEngine);
+        VehicleWithEngine vehicleElectric = new VehicleImpl(electricEngine);
+        vehicleGas.startEngine();       // Starting gas engine
+        vehicleElectric.startEngine();  // Starting electric engine
+
+        // Adapter
+        OldEngine oldEngine = new OldEngine();
+        Engine oldEngineAdapter = new OldEngineAdapter(oldEngine);
+        VehicleWithEngine vehicleOld = new VehicleImpl(oldEngineAdapter);
+        vehicleOld.startEngine();       // Old engine turning on
+    }
+}
+*/
